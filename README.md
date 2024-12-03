@@ -1,4 +1,4 @@
-Render PortableText used in Sanity using Flutter.
+This is fork of [flutter_portabletext](https://pub.dev/packages/flutter_portabletext) package, Render PortableText used in Sanity using Flutter.
 
 <img src="https://github.com/JobiJoba/flutter_portabletext/blob/main/demo.png?raw=true" alt="demo image" />
 

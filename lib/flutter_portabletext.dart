@@ -1,8 +1,8 @@
-library flutter_portabletext;
+library flutter_portabletext_fork;
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_portabletext/portable_text.dart';
+import 'package:flutter_portabletext_fork/portable_text.dart';
 
 class PortableTextRichText extends StatefulWidget {
   const PortableTextRichText({

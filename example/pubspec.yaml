@@ -30,7 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_portabletext:
+  flutter_portabletext_fork:
     path: "../"
   flutter_sanity: ^1.1.0
 

@@ -1,3 +1,7 @@
+## 0.0.5
+
+Fix Null check operator used on a null 
+
 ## 0.0.4
 
 Still WIP improve the readme and add an example with sanity client and/or from a json.

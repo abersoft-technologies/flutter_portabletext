@@ -5,8 +5,8 @@ import 'dart:convert';
 import 'package:example/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_portabletext/flutter_portabletext.dart';
-import 'package:flutter_portabletext/portable_text.dart';
+import 'package:flutter_portabletext_fork/flutter_portabletext.dart';
+import 'package:flutter_portabletext_fork/portable_text.dart';
 import 'package:flutter_sanity/flutter_sanity.dart';
 
 void main() {
