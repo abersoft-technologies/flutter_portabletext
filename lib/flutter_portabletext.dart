@@ -42,163 +42,130 @@ class PortableTextRichText extends StatefulWidget {
 }
 
 class _PortableTextRichTextState extends State<PortableTextRichText> {
-  TextStyle correctStyle(TextStyle thisTextStyle, List<String>? listStyle,
-      List<MarkDef> markDefs) {
-    if (listStyle == null) {
-      return thisTextStyle;
-    }
-    TextStyle newStyle = thisTextStyle;
+  TextStyle applyStyles(
+      TextStyle baseStyle, List<String>? styles, List<MarkDef> markDefs) {
+    if (styles == null) return baseStyle;
 
-    for (var style in listStyle) {
-      if (style.contains('em')) {
-        newStyle = newStyle.copyWith(fontStyle: FontStyle.italic);
-      } else if (style.contains('strong')) {
-        newStyle = newStyle.copyWith(fontWeight: FontWeight.bold);
-      } else if (style.contains('underline')) {
-        newStyle = newStyle.copyWith(decoration: TextDecoration.underline);
-      } else if (style.contains("code")) {
-        newStyle =
-            newStyle.copyWith(backgroundColor: widget.codeBackgroundColor);
-      } else if (style.contains('strike-through')) {
-        newStyle = newStyle.copyWith(decoration: TextDecoration.lineThrough);
+    TextStyle updatedStyle = baseStyle;
+
+    for (var style in styles) {
+      switch (style) {
+        case 'em':
+          updatedStyle = updatedStyle.copyWith(fontStyle: FontStyle.italic);
+          break;
+        case 'strong':
+          updatedStyle = updatedStyle.copyWith(fontWeight: FontWeight.bold);
+          break;
+        case 'underline':
+          updatedStyle =
+              updatedStyle.copyWith(decoration: TextDecoration.underline);
+          break;
+        case 'code':
+          updatedStyle = updatedStyle.copyWith(
+              backgroundColor: widget.codeBackgroundColor);
+          break;
+        case 'strike-through':
+          updatedStyle =
+              updatedStyle.copyWith(decoration: TextDecoration.lineThrough);
+          break;
       }
     }
 
-    if (markDefs.isNotEmpty) {
-      for (var markDef in markDefs) {
-        if (markDef.type == "link" && listStyle.contains(markDef.key)) {
-          newStyle = newStyle.copyWith(
-              color: widget.externalLinkColor,
-              decoration: widget.externalLinkDecoration,
-              decorationColor: widget.externalLinkColor);
-        }
+    for (var markDef in markDefs) {
+      if (markDef.type == "link" && styles.contains(markDef.key)) {
+        updatedStyle = updatedStyle.copyWith(
+          color: widget.externalLinkColor,
+          decoration: widget.externalLinkDecoration,
+          decorationColor: widget.externalLinkColor,
+        );
       }
     }
 
-    return newStyle;
+    return updatedStyle;
+  }
+
+  List<TextSpan> buildTextSpans(PortableText portableText) {
+    return portableText.children.map((child) {
+      void Function()? onTap = child.marks == null
+          ? null
+          : generateOnTapForLink(
+              portableText.markDefs, child.marks!, widget.onTapLink);
+
+      return TextSpan(
+        recognizer: TapGestureRecognizer()..onTap = onTap,
+        text: child.text,
+        style: applyStyles(
+          widget.mapStyle[portableText.style] ?? widget.normalStyle,
+          child.marks,
+          portableText.markDefs,
+        ),
+      );
+    }).toList();
+  }
+
+  Widget buildBlockquote(List<TextSpan> textSpans) {
+    return Container(
+      margin: const EdgeInsets.only(left: 8),
+      padding: const EdgeInsets.only(left: 8),
+      decoration: const BoxDecoration(
+        border: Border(left: BorderSide(color: Colors.grey, width: 2)),
+      ),
+      child: Text.rich(TextSpan(children: textSpans)),
+    );
+  }
+
+  Widget buildListItem(PortableText portableText, int index) {
+    final List<TextSpan> textSpans = buildTextSpans(portableText);
+    final String prefix = portableText.listItem == "bullet" ? "- " : "$index. ";
+
+    return Text.rich(
+      TextSpan(
+        children: textSpans
+            .map(
+              (span) => TextSpan(
+                text: '$prefix${span.text}',
+                style: span.style,
+              ),
+            )
+            .toList(),
+        style: widget.normalStyle,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     int number = 1;
-    Iterable<Widget> simpleVersion = widget.portableText.map((portableText) {
-      Widget result = const SizedBox();
 
-      if (portableText.style != "normal") {
-        final List<TextSpan> textSpans = [];
-
-        for (var child in portableText.children) {
-          void Function()? onTap = child.marks == null
-              ? null
-              : generateOnTapForLink(
-                  portableText.markDefs, child.marks!, widget.onTapLink);
-
-          textSpans.add(TextSpan(
-              recognizer: TapGestureRecognizer()..onTap = onTap,
-              text: child.text,
-              style: correctStyle(widget.mapStyle[portableText.style]!,
-                  child.marks, portableText.markDefs)));
-        }
-
-        if (portableText.style == "blockquote") {
-          result = Container(
-              margin: const EdgeInsets.only(left: 8),
-              padding: const EdgeInsets.only(left: 8),
-              decoration: const BoxDecoration(
-                  border:
-                      Border(left: (BorderSide(color: Colors.grey, width: 2)))),
-              child: Text.rich(TextSpan(
-                children: textSpans,
-              )));
-        } else {
-          // Not sure this is good here
-          result = Text.rich(TextSpan(
-            children: textSpans,
-          ));
-        }
-
-        number = 1;
-      } else if (portableText.style == "normal") {
-        final List<TextSpan> textSpans = [];
-        if (portableText.listItem != null &&
-            portableText.listItem == "bullet") {
-          for (var child in portableText.children) {
-            void Function()? onTap = child.marks == null
-                ? null
-                : generateOnTapForLink(
-                    portableText.markDefs, child.marks!, widget.onTapLink);
-
-            textSpans.add(TextSpan(
-                recognizer: TapGestureRecognizer()..onTap = onTap,
-                text: "- ${child.text}",
-                style: correctStyle(
-                    widget.normalStyle, child.marks, portableText.markDefs)));
-          }
-          result = Text.rich(TextSpan(
-            children: textSpans,
+    final List<Widget> textWidgets = widget.portableText.map((portableText) {
+      if (portableText.style == "blockquote") {
+        return buildBlockquote(buildTextSpans(portableText));
+      } else if (portableText.listItem != null) {
+        return buildListItem(portableText, number++);
+      } else {
+        return Text.rich(
+          TextSpan(
+            children: buildTextSpans(portableText),
             style: widget.normalStyle,
-          ));
-        } else if (portableText.listItem != null &&
-            portableText.listItem == "number") {
-          for (var child in portableText.children) {
-            void Function()? onTap = child.marks == null
-                ? null
-                : generateOnTapForLink(
-                    portableText.markDefs, child.marks!, widget.onTapLink);
-
-            textSpans.add(TextSpan(
-                recognizer: TapGestureRecognizer()..onTap = onTap,
-                text: "$number. ${child.text}",
-                style: correctStyle(
-                    widget.normalStyle, child.marks, portableText.markDefs)));
-            number++;
-          }
-          result = Text.rich(TextSpan(
-            children: textSpans,
-            style: widget.normalStyle,
-          ));
-        } else {
-          for (var child in portableText.children) {
-            void Function()? onTap = child.marks == null
-                ? null
-                : generateOnTapForLink(
-                    portableText.markDefs, child.marks!, widget.onTapLink);
-
-            textSpans.add(TextSpan(
-                recognizer: TapGestureRecognizer()..onTap = onTap,
-                text: child.text,
-                style: correctStyle(
-                    widget.normalStyle, child.marks, portableText.markDefs)));
-          }
-
-          result = Text.rich(TextSpan(
-            children: textSpans,
-            style: widget.normalStyle,
-          ));
-          number = 1;
-        }
+          ),
+        );
       }
-
-      return result;
-    });
+    }).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
-      children: simpleVersion.toList(),
+      children: textWidgets,
     );
   }
 }
 
 void Function()? generateOnTapForLink(List<MarkDef> markDefs,
     List<String> marks, void Function(String value)? onTapLink) {
-  void Function()? onTap;
-
   for (var markDef in markDefs) {
     if (marks.contains(markDef.key)) {
-      onTap = () => onTapLink != null ? onTapLink(markDef.href!) : null;
+      return () => onTapLink?.call(markDef.href!);
     }
   }
-
-  return onTap;
+  return null;
 }
