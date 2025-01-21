@@ -2,12 +2,10 @@
 
 import 'dart:convert';
 
-import 'package:example/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_portabletext_fork/flutter_portabletext.dart';
 import 'package:flutter_portabletext_fork/portable_text.dart';
-import 'package:flutter_sanity/flutter_sanity.dart';
 
 void main() {
   runApp(const MyApp());
@@ -45,28 +43,6 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
 
-    initPortableTextWithSanity() async {
-      final sanityClient = SanityClient(
-        dataset: sanityVariable['dataset']!,
-        projectId: sanityVariable['projectId']!,
-      );
-
-      final response = await sanityClient.fetch('*[_type == "post"]');
-
-      final content = response[0]['content'] as List<dynamic>;
-
-      final List<PortableText> listPortableText = [];
-      for (var dynamicPort in content) {
-        final portableText = PortableText.fromJson(dynamicPort);
-        listPortableText.add(portableText);
-      }
-      setState(() {
-        portableText = listPortableText;
-      });
-    }
-
-    initPortableTextWithSanity();
-
     initPortableTextWithJson() async {
       rootBundle.loadString('assets/ex.json').then((value) async {
         final data = await json.decode(value) as List<dynamic>;
@@ -81,7 +57,7 @@ class _MyHomePageState extends State<MyHomePage> {
       });
     }
 
-    // initPortableTextWithJson();
+    initPortableTextWithJson();
   }
 
   @override
@@ -91,7 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: Center(
+      body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
