@@ -1,3 +1,10 @@
+## 0.0.6
+
+- Custom bullet
+- Custom list indentation
+- Custom list spacing
+- Custom element spacing
+
 ## 0.0.5
 
 Fix Null check operator used on a null 
