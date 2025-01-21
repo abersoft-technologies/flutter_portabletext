@@ -318,6 +318,54 @@
     ]
   },
   {
+    "_key": "9ecd4dc3eea2",
+    "_type": "block",
+    "children": [
+      {
+        "_key": "95c61b9964030",
+        "_type": "span",
+        "marks": [
+          "strong"
+        ],
+        "text": "Specialties:"
+      },
+      {
+        "_key": "95c61b9964031",
+        "_type": "span",
+        "marks": [],
+        "text": " Traditional sushi and sashimi with seasonal variations. Traditional sushi and sashimi with seasonal variations. Traditional sushi and sashimi with seasonal variations."
+      }
+    ],
+    "level": 1,
+    "listItem": "bullet",
+    "markDefs": [],
+    "style": "normal"
+  },
+  { 
+    "_key": "f8697e650387",
+    "_type": "block",
+    "children": [
+      {
+        "_key": "d500d795799f0",
+        "_type": "span",
+        "marks": [
+          "strong"
+        ],
+        "text": "Location:"
+      },
+      {
+        "_key": "d500d795799f1",
+        "_type": "span",
+        "marks": [],
+        "text": " Rådmansgatan 23, 114 25, Stockholm, Sweden"
+      }
+    ],
+    "level": 1,
+    "listItem": "bullet",
+    "markDefs": [],
+    "style": "normal"
+  },
+  {
     "_key": "1f590fcc1795",
     "_type": "block",
     "children": [

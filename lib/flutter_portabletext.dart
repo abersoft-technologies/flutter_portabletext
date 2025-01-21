@@ -17,6 +17,10 @@ class PortableTextRichText extends StatefulWidget {
       'h6': TextStyle(fontSize: 14),
       'blockquote': TextStyle(fontSize: 12),
     },
+    this.bullet = '•',
+    this.listIndentation = 12,
+    this.listSpacing = 10,
+    this.elementSpacing = 4,
     this.quoteStyle = const TextStyle(
       fontSize: 12,
     ),
@@ -29,6 +33,10 @@ class PortableTextRichText extends StatefulWidget {
 
   final List<PortableText> portableText;
   final Map<String, TextStyle> mapStyle;
+  final String bullet;
+  final double listIndentation;
+  final double listSpacing;
+  final double elementSpacing;
   final TextStyle normalStyle;
   final TextStyle quoteStyle;
   final Color externalLinkColor;
@@ -116,19 +124,26 @@ class _PortableTextRichTextState extends State<PortableTextRichText> {
 
   Widget buildListItem(PortableText portableText, int index) {
     final List<TextSpan> textSpans = buildTextSpans(portableText);
-    final String prefix = portableText.listItem == "bullet" ? "- " : "$index. ";
+    final String prefix =
+        portableText.listItem == "bullet" ? "${widget.bullet} " : "$index. ";
 
-    return Text.rich(
-      TextSpan(
-        children: textSpans
-            .map(
-              (span) => TextSpan(
-                text: '$prefix${span.text}',
-                style: span.style,
-              ),
-            )
-            .toList(),
-        style: widget.normalStyle,
+    return Container(
+      padding: EdgeInsets.only(
+        left: widget.listIndentation * (portableText.level ?? 0),
+        bottom: widget.listSpacing,
+      ),
+      child: Text.rich(
+        TextSpan(
+          children: [
+            for (var i = 0; i < textSpans.length; i++)
+              TextSpan(
+                text:
+                    i == 0 ? '$prefix${textSpans[i].text}' : textSpans[i].text,
+                style: textSpans[i].style,
+              )
+          ],
+          style: widget.normalStyle,
+        ),
       ),
     );
   }
@@ -139,14 +154,29 @@ class _PortableTextRichTextState extends State<PortableTextRichText> {
 
     final List<Widget> textWidgets = widget.portableText.map((portableText) {
       if (portableText.style == "blockquote") {
-        return buildBlockquote(buildTextSpans(portableText));
+        return Container(
+          margin: EdgeInsets.only(
+            bottom: widget.elementSpacing,
+          ),
+          child: buildBlockquote(
+            buildTextSpans(portableText),
+          ),
+        );
       } else if (portableText.listItem != null) {
-        return buildListItem(portableText, number++);
+        return buildListItem(
+          portableText,
+          number++,
+        );
       } else {
-        return Text.rich(
-          TextSpan(
-            children: buildTextSpans(portableText),
-            style: widget.normalStyle,
+        return Container(
+          margin: EdgeInsets.only(
+            bottom: widget.elementSpacing,
+          ),
+          child: Text.rich(
+            TextSpan(
+              children: buildTextSpans(portableText),
+              style: widget.normalStyle,
+            ),
           ),
         );
       }
