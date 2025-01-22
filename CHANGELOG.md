@@ -1,3 +1,7 @@
+## 0.0.7
+
+- Fix bullet and number alignment
+
 ## 0.0.6
 
 - Custom bullet

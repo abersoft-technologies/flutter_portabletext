@@ -132,18 +132,28 @@ class _PortableTextRichTextState extends State<PortableTextRichText> {
         left: widget.listIndentation * (portableText.level ?? 0),
         bottom: widget.listSpacing,
       ),
-      child: Text.rich(
-        TextSpan(
-          children: [
-            for (var i = 0; i < textSpans.length; i++)
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            prefix,
+            style: widget.normalStyle,
+          ),
+          Expanded(
+            child: Text.rich(
               TextSpan(
-                text:
-                    i == 0 ? '$prefix${textSpans[i].text}' : textSpans[i].text,
-                style: textSpans[i].style,
-              )
-          ],
-          style: widget.normalStyle,
-        ),
+                children: [
+                  for (var i = 0; i < textSpans.length; i++)
+                    TextSpan(
+                      text: textSpans[i].text,
+                      style: textSpans[i].style,
+                    )
+                ],
+                style: widget.normalStyle,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
